@@ -4,79 +4,106 @@ Welcome to **6 Devs, 1 Project** — a collaborative experiment where **six deve
 
 ---
 
-## 🔥 The Mission
+## 🚩 Project Selection & MVP (Dev #1: Ray Fernando)
 
-To explore what's possible when six minds build one product together — one dev at a time, one piece at a time. The outcome? A functional, creative, and possibly launch-worthy MVP in just **12 hours** of combined dev time.
+**Selected Project:**
+
+### Document Translator (Image/PDF → AI-Powered Translation)
+
+Upload an image or PDF, extract the text using AI (OCR), and translate it into another language. The result is a shareable link to the translated document.
+
+**Why?**
+
+- Solves a real pain point for translating documents (e.g., medical PDFs, forms, etc.)
+- Leverages the latest AI models for both OCR and translation
+- Simple, useful, and extensible for future features
+
+**MVP Feature List:**
+
+- Upload an image (JPEG/PNG) or PDF
+- Extract text from the document using AI (OCR via Mistral model)
+- Detect the source language
+- Translate the extracted text to a user-selected target language
+- Store the original and translated text in a Vercel blob store
+- Generate a shareable link for the translated document
+- Simple, user-friendly UI
+
+**Tech Stack:**
+
+- Next.js (App Router)
+- React (with functional components)
+- Tailwind CSS (for styling)
+- Vercel AI SDK (using the Mistral model for OCR and translation)
+- Vercel Blob Store (for file storage and shareable links)
+
+**Design Direction:**
+
+- Clean, minimal, and accessible
+- Focus on clarity and ease of use
+- Responsive and mobile-friendly
+
+**Handoff Plan for Dev #2:**
+
+- Frontend skeleton is in place (see `app/`, `components/`)
+- File upload, language selection, and result display are implemented
+- Backend logic for processing documents is in `app/actions.ts`
+- See below for more details on project structure and workflow
 
 ---
 
-## 🧠 First Developer: Start Here
+## 🧠 Project Overview & Structure
 
-As the **first dev**, you're **setting the foundation**.
+### How It Works
 
-### Your responsibilities:
-1. **Choose a concept** from our shared idea pool (see below).
-2. **Define the MVP**: What is the *minimum* viable version we want to ship?
-3. **Create the PDR (Project Definition Report)**:
-   - Project name & concept
-   - Target audience
-   - MVP feature list
-   - Tech stack suggestions
-   - Design direction (if relevant)
-   - Handoff plan for Dev #2
+1. **User uploads** an image or PDF via the UI.
+2. The file is **uploaded to Vercel Blob Store** and a public URL is generated.
+3. The **Vercel AI SDK (Mistral model)** is used to:
+   - Extract text from the file (OCR)
+   - Detect the source language
+   - Translate the text to the selected target language
+4. The **results** (original and translated text, languages, shareable link) are displayed to the user and can be shared.
 
-Deliver this in a format that's easy to reference: a Notion doc, Google Doc, or markdown file in the repo — your choice.
+### Key Files & Directories
 
-these are suggetions and up to the dev to move in directions you think are best
+- `app/` — Main application code, including routes and backend actions
+  - `actions.ts` — Handles file upload, AI processing, translation, and link generation
+  - `share/[id]/` — (Demo) Route for viewing shared documents
+- `components/` — UI components
+  - `file-uploader.tsx` — Handles file selection, validation, and upload
+  - `results-display.tsx` — Shows translation results and sharing options
+  - `language-selector.tsx` — Dropdown for selecting target language
+- `lib/` — Utility functions (future expansion)
+- `public/` — Static assets
+- `styles/` — Global styles
+- `package.json` — Dependencies (see Vercel AI SDK, Mistral, Blob, etc.)
+- `README.md` — This file! (Always up to date for onboarding)
 
-Once you're done:
-- **Dev #1** will pick and Plan (Concept + MVP + PDR) + (only if you have time) build the frontend skeleton. core ideas and baseline of functionalities if you have time
-- **Dev #2** will build the frontend skeleton.  
-- **Dev #3** will add design and branding.  
-- **Dev #4** handles backend and APIs.  
-- **Dev #5** sets up auth and security.  
-- **Dev #6** does QA finishes up features or bugs that are missing and launches the app live, ready for testing and launching on Product Hunt.
+For more details, see the [Project Structure Guide](.cursor/rules/project-structure.mdc) and [Vercel AI SDK Usage Guide](.cursor/rules/vercel-ai-sdk-usage.mdc).
 
 ---
 
-## 💡 Project Ideas
+## 🛠️ Implementation Details
 
-Choose one of these or remix your own. Innovation and weirdness are encouraged.
+- **Vercel AI SDK** is used for both OCR (extracting text from images/PDFs) and translation, with the **Mistral model** as the engine.
+- **Vercel Blob Store** is used to store uploaded files and generate public, shareable links.
+- The backend logic is in `app/actions.ts` and is called from the frontend via the file uploader component.
+- The UI is built with reusable components and is ready for further design/branding work.
 
-### 1. **Loveable Date Planner**
-A web app for couples to discover "vibe-coded" date ideas based on mood, time, and energy.
-- Inspired by Loveable.dev
-- AI-generated creative ideas
-- Shareable date cards or lists
+---
 
-### 2. **Google Maps Trip Companion**
-Turns a **Google Maps shared list** into a day-by-day travel itinerary.
-- Uses shared "saved places" lists
-- Organizes by area, hours, interests
-- Could include local insights/weather
+## 🏃 Next Steps for Developers
 
-### 3. **Voice Translator, But Make It You**
-Record your voice once and speak fluently in other languages using your own tone.
-- Combines voice cloning + AI translation
-- Useful for travel, business, accessibility
-
-### 4. **AI-Powered Smart Note Taker**
-Capture meeting notes or voice memos — AI fills in the blanks with:
-- Related videos, research papers, site references
-- Summaries + links
-- Think: Notion meets Perplexity
-
-### 5. **Medical PDF Translator**
-Upload medical PDFs and get quick, human-readable translations.
-- Example use: translating post-hospital visit documents from French → English
-- Solves a real pain point (real story: A friend would got a $2,000 quote + it would've taken a week.)
-- Not a replacement for legal/official medical interpretation
-
-### 6. **Mental Health Meditation App**
-Open-source, low-cost alternative to Calm/Headspace.
-- Guided meditations
-- AI chatbot for light support (marketed as clearly not a therapist)
-- Built around accessibility and empathy
+- **Dev #2:**
+  - Refine the frontend skeleton, improve UX, and ensure smooth file upload/processing flow.
+  - Add error handling, loading states, and polish the UI.
+- **Dev #3:**
+  - Add design and branding (colors, logo, typography, etc.).
+- **Dev #4:**
+  - Expand backend/API logic, add database or persistent storage if needed, and improve shareable link functionality.
+- **Dev #5:**
+  - Implement authentication and security best practices.
+- **Dev #6:**
+  - QA, bug fixes, and prepare for launch/demo.
 
 ---
 
@@ -93,13 +120,13 @@ Open-source, low-cost alternative to Calm/Headspace.
 
 Each developer gets ~2 hours to work before handing off. Here's the full relay breakdown:
 
-| Dev # | Role |
-|-------|------|
-| 1     | Planning (Concept + MVP + PDR) ✅ |
-| 2     | Frontend skeleton |
-| 3     | Design & branding |
-| 4     | Backend & APIs |
-| 5     | Auth & security |
+| Dev # | Role                                       |
+| ----- | ------------------------------------------ |
+| 1     | Planning (Concept + MVP + PDR) ✅          |
+| 2     | Frontend skeleton                          |
+| 3     | Design & branding                          |
+| 4     | Backend & APIs                             |
+| 5     | Auth & security                            |
 | 6     | QA, launch, and prep for Product Hunt/demo |
 
 All work is streamed or recorded for a final YouTube recap.
@@ -109,6 +136,7 @@ All work is streamed or recorded for a final YouTube recap.
 ## 🎥 Final Product
 
 At the end, we'll have:
+
 - A working MVP
 - A full build journey recorded
 - A 20-minute video documenting the entire project
@@ -118,4 +146,4 @@ At the end, we'll have:
 
 ## 🚀 Let's Build Something Unexpected.
 
-Questions? DM the project lead or open an issue in the repo. Otherwise — grab your turn, review the PDR, and let's ship some magic. 
+Questions? DM the project lead or open an issue in the repo. Otherwise — grab your turn, review the PDR, and let's ship some magic.
