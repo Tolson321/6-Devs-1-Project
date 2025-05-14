@@ -1,11 +1,18 @@
 ---
-description:
-globs:
+description: 
+globs: 
 alwaysApply: false
 ---
 # Vercel AI SDK Usage Guide
 
 This project leverages the Vercel AI SDK to enable document translation workflows, specifically targeting images and PDFs. The following summarizes the key usage patterns and architecture:
+
+- **OCR Document Processing:**
+  - The project uses the [`mistral-ocr-latest`](mdc:https:/docs.mistral.ai/capabilities/document/#tag/ocr/operation/ocr_v1_ocr_post) model for extracting text and structure from PDFs and images.
+  - The OCR processor preserves formatting (headers, paragraphs, lists, tables) and returns results in markdown for easy parsing and rendering.
+  - It supports complex layouts, multi-column text, and mixed content, and can process documents at scale with high accuracy.
+  - The OCR API can be called with a document URL or a base64-encoded file, and supports both images and PDFs.
+  - See the [Mistral OCR documentation](mdc:https:/docs.mistral.ai/capabilities/document/#tag/ocr/operation/ocr_v1_ocr_post) for request/response examples and advanced usage.
 
 - **Translation Workflow:**
   - Users upload documents (images or PDFs) to the application.
@@ -17,8 +24,8 @@ This project leverages the Vercel AI SDK to enable document translation workflow
   - The blob store generates a **shareable link** for each stored file, which can be distributed to users for access.
 
 - **Key Implementation Details:**
-  - The Vercel AI SDK is integrated in the backend logic responsible for handling file uploads and translation requests.
-  - The Mistral model is explicitly selected/configured for translation tasks.
+  - The Vercel AI SDK is integrated in the backend logic responsible for handling file uploads, OCR, and translation requests.
+  - The `mistral-ocr-latest` model is explicitly selected/configured for OCR tasks.
   - After translation, the result (text or file) is saved to the blob store, and a link is generated for sharing.
 
 - **Extending the Workflow:**

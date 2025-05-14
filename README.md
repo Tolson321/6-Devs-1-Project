@@ -1,5 +1,9 @@
 # 🧩 6 Devs, 1 Project
 
+> **Note:** Developers should reference the [Mistral API documentation](https://docs.mistral.ai/api/) for details on available endpoints, request formats, and model usage.
+>
+> **OCR Model:** This project uses the [`mistral-ocr-latest`](https://docs.mistral.ai/capabilities/document/#tag/ocr/operation/ocr_v1_ocr_post) model for document OCR. It extracts structured text from PDFs and images, preserving formatting and returning results in markdown. See the [OCR documentation](https://docs.mistral.ai/capabilities/document/#tag/ocr/operation/ocr_v1_ocr_post) for details and usage examples.
+
 Welcome to **6 Devs, 1 Project** — a collaborative experiment where **six developers** team up to build **one product** in a high-energy, relay-style format. Think of it as a dev jam meets reality show meets Product Hunt launch.
 
 ---
