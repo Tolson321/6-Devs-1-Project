@@ -12,7 +12,7 @@ To explore what's possible when six minds build one product together — one dev
 
 ## 🧠 First Developer: Start Here
 
-As the **first dev**, you're not writing code — you're **setting the foundation**.
+As the **first dev**, you're **setting the foundation**.
 
 ### Your responsibilities:
 1. **Choose a concept** from our shared idea pool (see below).
@@ -27,12 +27,15 @@ As the **first dev**, you're not writing code — you're **setting the foundatio
 
 Deliver this in a format that's easy to reference: a Notion doc, Google Doc, or markdown file in the repo — your choice.
 
+these are suggetions and up to the dev to move in directions you think are best
+
 Once you're done:
+- **Dev #1** will pick and Plan (Concept + MVP + PDR) + (only if you have time) build the frontend skeleton. core ideas and baseline of functionalities if you have time
 - **Dev #2** will build the frontend skeleton.  
 - **Dev #3** will add design and branding.  
 - **Dev #4** handles backend and APIs.  
 - **Dev #5** sets up auth and security.  
-- **Dev #6** does QA and launches the app live, ready for testing and launching on Product Hunt.
+- **Dev #6** does QA finishes up features or bugs that are missing and launches the app live, ready for testing and launching on Product Hunt.
 
 ---
 
