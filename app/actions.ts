@@ -1,53 +1,49 @@
-"use server"
+"use server";
 
-import { put } from "@vercel/blob"
-import { nanoid } from "nanoid"
-import { mistral } from "@ai-sdk/mistral"
-import { generateText } from "ai"
-import { revalidatePath } from "next/cache"
+import { mistral } from "@ai-sdk/mistral";
+import { put } from "@vercel/blob";
+import { generateText } from "ai";
+import { nanoid } from "nanoid";
+import { revalidatePath } from "next/cache";
 
 export async function processDocument(formData: FormData) {
   try {
     // Get the file and target language from the form data
-    const file = formData.get("file") as File
-    const targetLanguage = (formData.get("targetLanguage") as string) || "English"
+    const file = formData.get("file") as File;
+    const targetLanguage = (formData.get("targetLanguage") as string) || "English";
 
     if (!file) {
-      throw new Error("No file provided")
+      throw new Error("No file provided");
     }
 
     // Upload file to Vercel Blob
-    const filename = `${nanoid()}-${file.name}`
+    const filename = `${nanoid()}-${file.name}`;
     const blob = await put(filename, file, {
       access: "public",
-    })
+    });
 
     // Determine file type
-    const fileType = file.type
-    const isImage = fileType.startsWith("image/")
-    const isPdf = fileType === "application/pdf"
+    const fileType = file.type;
+    const isImage = fileType.startsWith("image/");
+    const isPdf = fileType === "application/pdf";
 
     // Create a prompt for Mistral based on file type
-    let prompt = ""
+    let prompt = "";
     if (isImage) {
-      prompt = `This is an image file. Please extract all the text from this image using OCR. The image is available at: ${blob.url}`
+      prompt = `This is an image file. Please extract all the text from this image using OCR. The image is available at: ${blob.url}`;
     } else if (isPdf) {
-      prompt = `This is a PDF document. Please extract all the text from this PDF using OCR. The PDF is available at: ${blob.url}`
+      prompt = `This is a PDF document. Please extract all the text from this PDF using OCR. The PDF is available at: ${blob.url}`;
     } else {
-      throw new Error("Unsupported file type")
+      throw new Error("Unsupported file type");
     }
 
-    // Use Mistral to extract text from the document
+    // Use Mistral OCR to extract text from the document
     const extractionResult = await generateText({
-      model: mistral("mistral-large-latest"),
+      model: mistral("mistral-ocr-latest"),
       messages: [
         {
           role: "user",
           content: [
-            {
-              type: "text",
-              text: prompt,
-            },
             {
               type: "file",
               data: new URL(blob.url),
@@ -56,7 +52,13 @@ export async function processDocument(formData: FormData) {
           ],
         },
       ],
-    })
+      providerOptions: {
+        mistral: {
+          documentImageLimit: 8,
+          documentPageLimit: 64,
+        },
+      },
+    });
 
     // Detect the source language
     const detectionResult = await generateText({
@@ -72,9 +74,9 @@ export async function processDocument(formData: FormData) {
           content: extractionResult.text.substring(0, 1000), // Use first 1000 chars for detection
         },
       ],
-    })
+    });
 
-    const sourceLanguage = detectionResult.text.trim()
+    const sourceLanguage = detectionResult.text.trim();
 
     // Translate the extracted text to the target language
     const translationResult = await generateText({
@@ -89,10 +91,10 @@ export async function processDocument(formData: FormData) {
           content: extractionResult.text,
         },
       ],
-    })
+    });
 
     // Generate a shareable link (in a real app, this would be a proper URL)
-    const shareableLink = `${process.env.VERCEL_URL || "http://localhost:3000"}/share/${nanoid()}`
+    const shareableLink = `${process.env.VERCEL_URL || "http://localhost:3000"}/share/${nanoid()}`;
 
     // Return the results
     const result = {
@@ -101,12 +103,12 @@ export async function processDocument(formData: FormData) {
       sourceLanguage,
       targetLanguage,
       shareableLink,
-    }
+    };
 
-    revalidatePath("/")
-    return result
+    revalidatePath("/");
+    return result;
   } catch (error) {
-    console.error("Error processing document:", error)
-    throw new Error("Failed to process document")
+    console.error("Error processing document:", error);
+    throw new Error("Failed to process document");
   }
 }
