@@ -1,0 +1,28 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Vercel AI SDK Usage Guide
+
+This project leverages the Vercel AI SDK to enable document translation workflows, specifically targeting images and PDFs. The following summarizes the key usage patterns and architecture:
+
+- **Translation Workflow:**
+  - Users upload documents (images or PDFs) to the application.
+  - The uploaded files are processed and sent to the Vercel AI SDK, utilizing the **Mistral model** for language translation.
+  - The AI model extracts text from the document, translates it into the target language, and returns the translated content.
+
+- **File Storage and Sharing:**
+  - Processed files (original and/or translated) are stored using the **Vercel blob store**.
+  - The blob store generates a **shareable link** for each stored file, which can be distributed to users for access.
+
+- **Key Implementation Details:**
+  - The Vercel AI SDK is integrated in the backend logic responsible for handling file uploads and translation requests.
+  - The Mistral model is explicitly selected/configured for translation tasks.
+  - After translation, the result (text or file) is saved to the blob store, and a link is generated for sharing.
+
+- **Extending the Workflow:**
+  - Agents or developers can build on this foundation by adding post-processing steps, additional language support, or further automations after the image/PDF is processed and saved.
+  - The shareable link mechanism enables easy distribution and further actions on the translated documents.
+
+Refer to the relevant backend logic and blob store integration for implementation specifics.

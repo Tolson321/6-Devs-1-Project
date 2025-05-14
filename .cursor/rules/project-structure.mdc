@@ -1,0 +1,24 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Project Structure Guide
+
+This project is organized as follows:
+
+- The main application code is in the `app/` directory. Pages and routes are nested within, such as `app/share/[id]/` for dynamic share pages.
+- Reusable UI components are in `components/ui/`.
+- Custom React hooks are in the `hooks/` directory.
+- Utility and helper functions are in `lib/`.
+- Static assets are in `public/`.
+- Global styles are in `styles/`.
+- Project configuration files include:
+  - [next.config.mjs](mdc:next.config.mjs) for Next.js configuration
+  - [tailwind.config.ts](mdc:tailwind.config.ts) for Tailwind CSS setup
+  - [postcss.config.mjs](mdc:postcss.config.mjs) for PostCSS
+  - [tsconfig.json](mdc:tsconfig.json) for TypeScript
+  - [package.json](mdc:package.json) and [pnpm-lock.yaml](mdc:pnpm-lock.yaml) for dependencies
+- The [README.md](mdc:README.md) provides an overview and setup instructions.
+
+Follow this structure to locate files and understand the organization of the codebase.
