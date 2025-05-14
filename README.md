@@ -18,6 +18,41 @@ Upload an image or PDF, extract the text using AI (OCR), and translate it into a
 - Leverages the latest AI models for both OCR and translation
 - Simple, useful, and extensible for future features
 
+---
+
+## 🎯 Who Is This For? (Target Persona & Market Fit)
+
+This project is designed for travelers, expats, and digital nomads who urgently need to translate official documents—especially medical records—while abroad. The primary persona is the "Emergency-Docs Abroad" traveler:
+
+- **Profile:** A tech-savvy, mid-30s professional from the U.S., U.K., Canada, Australia, or Western Europe, often traveling for leisure or work. They store documents in Google Drive/iCloud, pay online, and expect mobile-first solutions.
+- **Typical Scenario:** After an accident or sudden illness abroad, they're discharged with medical paperwork in a foreign language. Their insurer and home doctor require English records _immediately_ to process claims or approve travel.
+- **Pain Points:**
+  - High cost and slow turnaround from traditional translation agencies ($35–$150/page, 3–5 days)
+  - Google Translate/DeepL can't handle medical jargon or handwritten notes
+  - Privacy concerns about emailing sensitive records
+  - Need for fast, clear, and insurer-ready translations (ideally <1 hour)
+  - Often working from a phone, not a laptop
+- **Market Signals:**
+  - 7% of leisure travelers need medical care abroad; 1% are hospitalized
+  - 3M+ U.S. travelers/year engage with foreign healthcare
+  - 90k–110k global searches/month for document translation keywords
+
+**Jobs-To-Be-Done:**
+
+- "I need this French discharge summary in plain English _before tomorrow's follow-up call_."
+- "My insurer requires documentation in English or they'll deny my claim."
+- "My hometown doctor must review my x-ray report to advise if I can fly."
+
+**What They Value:**
+
+- Speed (<1 hour turnaround)
+- Clarity (plain English + original terms)
+- Data security (auto-delete, encrypted)
+- Price transparency (flat per-page or upfront quote)
+- Mobile-first, one-tap upload
+
+For more details, see `marketing-docs/landing-page-copy-ideas.md` for the full persona, pain points, and market research.
+
 **MVP Feature List:**
 
 - Upload an image (JPEG/PNG) or PDF
