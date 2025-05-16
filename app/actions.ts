@@ -27,46 +27,49 @@ export async function processDocument(formData: FormData) {
     const isImage = fileType.startsWith("image/");
     const isPdf = fileType === "application/pdf";
 
-    // Create a prompt for Mistral based on file type
-    let prompt = "";
-    if (isImage) {
-      prompt = `This is an image file. Please extract all the text from this image using OCR. The image is available at: ${blob.url}`;
-    } else if (isPdf) {
-      prompt = `This is a PDF document. Please extract all the text from this PDF using OCR. The PDF is available at: ${blob.url}`;
-    } else {
+    if (!isImage && !isPdf) {
       throw new Error("Unsupported file type");
     }
 
-    // Use Mistral OCR to extract text from the document
-    const extractionResult = await generateText({
-      model: mistral("mistral-large-latest"),
-      messages: [
-        {
-          role: "system",
-          content: "You are an OCR expert. Extract all text from the provided document while preserving formatting.",
-        },
-        {
-          role: "user",
-          content: [
-            {
-              type: "file",
-              data: new URL(blob.url),
-              mimeType: file.type,
-            },
-          ],
-        },
-      ],
-      providerOptions: {
-        mistral: {
-          documentImageLimit: 8,
-          documentPageLimit: 64,
-        },
+    // Process document using Mistral OCR API
+    let extractedText = "";
+    
+    // Direct API call to Mistral OCR endpoint
+    const response = await fetch("https://api.mistral.ai/v1/ocr", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.MISTRAL_API_KEY}`
       },
+      body: JSON.stringify({
+        model: "mistral-ocr-latest",
+        document: {
+          type: isImage ? "image_url" : "document_url",
+          [isImage ? "image_url" : "document_url"]: blob.url
+        }
+      })
     });
+
+    if (!response.ok) {
+      const errorData = await response.text();
+      throw new Error(`OCR API error: ${errorData}`);
+    }
+
+    const ocrResult = await response.json();
+    
+    // Extract text from OCR result
+    if (ocrResult.pages && ocrResult.pages.length > 0) {
+      extractedText = ocrResult.pages.map((page: any) => page.markdown).join("\n\n");
+    } else {
+      throw new Error("No text extracted from document");
+    }
+
+    // Use mistral-small-latest for language detection and translation
+    const languageModel = mistral("mistral-small-latest");
 
     // Detect the source language
     const detectionResult = await generateText({
-      model: mistral("mistral-large-latest"),
+      model: languageModel,
       messages: [
         {
           role: "system",
@@ -75,7 +78,7 @@ export async function processDocument(formData: FormData) {
         },
         {
           role: "user",
-          content: extractionResult.text.substring(0, 1000), // Use first 1000 chars for detection
+          content: extractedText.substring(0, 1000), // Use first 1000 chars for detection
         },
       ],
     });
@@ -84,7 +87,7 @@ export async function processDocument(formData: FormData) {
 
     // Translate the extracted text to the target language
     const translationResult = await generateText({
-      model: mistral("mistral-large-latest"),
+      model: languageModel,
       messages: [
         {
           role: "system",
@@ -92,7 +95,7 @@ export async function processDocument(formData: FormData) {
         },
         {
           role: "user",
-          content: extractionResult.text,
+          content: extractedText,
         },
       ],
     });
@@ -102,7 +105,7 @@ export async function processDocument(formData: FormData) {
 
     // Return the results
     const result = {
-      originalText: extractionResult.text,
+      originalText: extractedText,
       translatedText: translationResult.text,
       sourceLanguage,
       targetLanguage,

@@ -135,6 +135,124 @@ For more details, see the [Project Structure Guide](.cursor/rules/project-struct
 - **Dev #2:**
   - Refine the frontend skeleton, improve UX, and ensure smooth file upload/processing flow.
   - Add error handling, loading states, and polish the UI.
+
+### 1. Snapshot of the Competitive Landscape
+
+| Service                     | Core Pitch                               | OCR Quality                                        | Formatting Preserved                    | Turn-around Speed                          | Privacy Posture                                     | Pricing Signal                               | Mobile-First?                   | Notes for Differentiation                                                                        |
+| --------------------------- | ---------------------------------------- | -------------------------------------------------- | --------------------------------------- | ------------------------------------------ | --------------------------------------------------- | -------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------ |
+| **DeepL PDF**               | “Unrivaled accuracy”                     | Good (extracts text, warns about image-heavy PDFs) | Yes—markets “all formatting maintained” | Manual upload → download; account required | Pro plans promise auto-deletion after translation   | Free ≤ 5 MB, Pro tiers up to 30 MB           | Desktop, mobile apps            | Best-in-class quality, but gate-keeps bigger files & fastest flow behind paywall ([DeepL][1])    |
+| **Smallpdf Translator**     | “Instant summaries or full translations” | Auto-OCR on images & scans                         | Partial—images/layout may drop          | One-click web tool, no signup              | TLS, GDPR/ISO badges; no explicit auto-delete timer | Free + 7-day unlimited trial; upsells bundle | Fully browser/mobile responsive | Very low friction; leverages brand trust of 1.7 B users ([Smallpdf][2])                          |
+| **DocTranslator**           | Low-cost bulk word pricing               | Uses Google/AI OCR                                 | Keeps layout (outputs same format)      | Async—email link when ready                | 24-h file storage on free tier                      | \$0.005/word; storage & Pro tiers            | Web only                        | Price transparency but dated UI; 24 h retention may worry health-data users ([DocTranslator][3]) |
+| **Google Translate (app)**  | Free, universal languages                | Live-camera OCR                                    | No formatting; plain text               | Real-time camera or photo                  | Data tied to Google account                         | Free                                         | Mobile-first                    | Great for snippets, poor for multi-page docs ([Google Play][4])                                  |
+| **Scan & Translate+ (iOS)** | “Cheaper & faster than others”           | OK for quick grabs                                 | No                                      | Real-time                                  | Unclear (consumer app)                              | Freemium                                     | Mobile only                     | Consumer focus; no shareable doc link ([Apple][5])                                               |
+
+**Gaps we can own**
+
+1. **< 1-hour SLA** for entire multi-page PDFs (Smallpdf doesn’t promise a clock; DeepL throttles size).
+2. **Medical-grade privacy**: instant encryption + auto-delete timer (DeepL reserves for Pro; competitors vague).
+3. **Share-ready link** that carries *both* source & translated text with layout preview (none do both).
+4. **Handwriting / mixed layout tolerance** via the new `mistral-ocr-latest` model.
+5. **Mobile-optimized one-hand flow** tuned for “injured traveler” scenarios, not desktop office users.
+
+---
+
+### 2. Design Principles & Justifications
+
+| Principle                                | Why It Matters (User & Competitor Insight)                                                                                                                                          | Implementation Notes                                                                                                              |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| **Clarity-First UI**                     | Emergency-docs persona is stressed, using a phone; must see *one obvious action* (“Upload & Translate”). Smallpdf’s single-drop zone outperforms DocTranslator’s multi-step wizard. | Hero section with drag-and-drop **card** + capture-from-camera button. Keep other options (history, pricing) behind a kebab menu. |
+| **Perceived Speed**                      | DeepL & DocTranslator leave users in a black-box wait. Showing progress lowers abandonment.                                                                                         | Inline progress bar (“Scanning 3 pages… 12 s remaining”), optimistic UI that pre-loads share link skeleton.                       |
+| **Trust & Privacy Signals**              | Healthcare docs demand HIPAA-like confidence. Smallpdf relies on badges; we add a visible *Auto-delete in 24 h* chip under the upload zone.                                         | Lock icon + tooltip linking to privacy policy; optional toggle for “delete on download”.                                          |
+| **Side-by-Side Viewer**                  | DeepL forces a file download. A live viewer lets users skim for errors before sharing.                                                                                              | Two-pane scroll-locked view (original left, translation right), with copy & “Flag mistranslation” CTA.                            |
+| **One-Tap Reshare**                      | Travelers often forward to insurer/doctor via WhatsApp/email.                                                                                                                       | Generate `https://docx.ai/s/<id>` link with built-in viewer and PDF export; share sheet on mobile.                                |
+| **Accessibility & Internationalisation** | Target market spans locales; color contrast and language fallback vital.                                                                                                            | WCAG AA contrast ratios, dynamic RTL layout when target language is Arabic/Hebrew.                                                |
+
+---
+
+### 3. Recommended Visual Palette & Typography
+
+| Token               | Hex       | Usage                           | Rationale\*                                                                                                   |
+| ------------------- | --------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| **Primary Blue**    | `#0D6EF9` | Headers, primary buttons        | Blue is most trusted hue in healthcare & fintech; evokes security and calm ([Progress.com][6], [LinkedIn][7]) |
+| **Healing Teal**    | `#00CEC8` | Secondary buttons, progress bar | Blue-green links to vitality & care; complements primary without competing ([Figma][8])                       |
+| **Safety Gray-900** | `#1F2937` | Body text                       | High-contrast, avoids pure black strain                                                                       |
+| **Neutral Gray-50** | `#F8FAFC` | Background panels               | Clean, clinical whitespace                                                                                    |
+| **Alert Amber**     | `#FFB547` | CTA accents, delete timer chip  | Warm accent for urgency (upload, share) without red-flag anxiety ([InspiringApps][9])                         |
+
+\*Color-psychology sources highlight blue/green for calm trust and a warm accent for attention without stress.
+
+**Font stack:** `Inter, ui-sans-serif, system-ui` – widely supported, high legibility at small sizes.
+
+---
+
+### 4. UX Flow (Mobile-First Wire Outline)
+
+1. **Landing / Hero**
+
+   * Logo + tagline
+   * Upload card (tap to pick file or “Scan with camera”)
+   * Language auto-detect pill → dropdown for target language
+2. **Processing Screen**
+
+   * Circular progress with percentages
+   * File thumbnail, page count, “Cancel” link
+3. **Results Screen**
+
+   * Top: success ribbon + auto-delete countdown (amber chip)
+   * Two-pane viewer (toggle “Side-by-side / Stacked”)
+   * Sticky footer: Copy translation | Download PDF | Share Link
+4. **Share View (`/s/[id]`)**
+
+   * Read-only viewer with same palette
+   * “Request fresh translation” button if expired
+5. **Error States**
+
+   * Friendly illustrations (paper plane crash)
+   * Retry / contact support links
+
+---
+
+### 5. Canva AI Brief (copy-paste ready)
+
+> **Project:** “Document Translator – Emergency Medical PDFs”
+> **Mood:** Calm trust, clinical clarity, light urgency
+> **Primary Colors:**
+> – Trust Blue `#0D6EF9` (buttons & headings)
+> – Healing Teal `#00CEC8` (highlights, progress)
+> – Neutral Gray 50 `#F8FAFC` (background)
+> – Text Gray 900 `#1F2937` (body text)
+> – Accent Amber `#FFB547` (CTA accent, countdown chip)
+> **Typography:** Inter – SemiBold (headings), Regular (body)
+> **Key Components to Mock:**
+>
+> 1. Mobile upload card with drag-drop + camera icon
+> 2. Processing screen with circular progress + teal ring
+> 3. Side-by-side viewer card (blue header bar)
+> 4. Share-link banner with amber CTA button
+>    **Imagery Style:** Crisp line icons, subtle gradients (teal-blue), lots of whitespace, rounded 12 px corners.
+>    **Overall Vibe:** Modern, accessible, hospital-grade trust but startup-fresh energy.
+
+---
+
+#### Next Steps
+
+* **Dev #2** can implement the color tokens in Tailwind (`tailwind.config.ts` – extend colors).
+* Add the countdown privacy chip component and progress UI.
+* **Designers** can use the Canva brief to spin up hero graphics and component mock-ups for review.
+
+This foundation positions us squarely between the accuracy of DeepL and the ease of Smallpdf, while owning **speed**, **medical-grade privacy**, and a **mobile emergency flow**.
+
+[1]: https://www.deepl.com/en/features/document-translation/pdf "Translate PDF documents instantly with DeepL"
+[2]: https://smallpdf.com/translate-pdf "Online PDF Translator | Translate PDFs to any language for free"
+[3]: https://doctranslator.com/pricing "Best Translation Pricing ⭐️ DocTranslator"
+[4]: https://play.google.com/store/apps/details?hl=en_US&id=com.google.android.apps.translate&utm_source=chatgpt.com "Google Translate - Apps on Google Play"
+[5]: https://apps.apple.com/us/app/scan-translate-text-grabber/id845139175?utm_source=chatgpt.com "Scan & Translate+ Text Grabber 4+ - App Store"
+[6]: https://www.progress.com/blogs/using-color-psychology-healthcare-web-design?utm_source=chatgpt.com "Using Color Psychology for Healthcare Web Design"
+[7]: https://www.linkedin.com/pulse/using-color-ux-healthcare-aaron-usiskin-0nbwe?utm_source=chatgpt.com "Using Color in UX / Healthcare - LinkedIn"
+[8]: https://www.figma.com/colors/blue-green/?utm_source=chatgpt.com "Blue-Green Color: Hex Code, Palettes & Meaning - Figma"
+[9]: https://www.inspiringapps.com/blog/the-importance-of-color-in-design?utm_source=chatgpt.com "The Psychology of Color in Branding Digital Products | InspiringApps"
+
+
 - **Dev #3:**
   - Add design and branding (colors, logo, typography, etc.).
 - **Dev #4:**
