@@ -136,7 +136,10 @@ For more details, see the [Project Structure Guide](.cursor/rules/project-struct
   - Refine the frontend skeleton, improve UX, and ensure smooth file upload/processing flow.
   - Add error handling, loading states, and polish the UI.
 
-### 1. Snapshot of the Competitive Landscape
+- **Dev #3:**
+  - Add design and branding (colors, logo, typography, etc.).
+
+  ### 1. Snapshot of the Competitive Landscape
 
 | Service                     | Core Pitch                               | OCR Quality                                        | Formatting Preserved                    | Turn-around Speed                          | Privacy Posture                                     | Pricing Signal                               | Mobile-First?                   | Notes for Differentiation                                                                        |
 | --------------------------- | ---------------------------------------- | -------------------------------------------------- | --------------------------------------- | ------------------------------------------ | --------------------------------------------------- | -------------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------ |
@@ -253,8 +256,6 @@ This foundation positions us squarely between the accuracy of DeepL and the ease
 [9]: https://www.inspiringapps.com/blog/the-importance-of-color-in-design?utm_source=chatgpt.com "The Psychology of Color in Branding Digital Products | InspiringApps"
 
 
-- **Dev #3:**
-  - Add design and branding (colors, logo, typography, etc.).
 - **Dev #4:**
   - Expand backend/API logic, add database or persistent storage if needed, and improve shareable link functionality.
 - **Dev #5:**
