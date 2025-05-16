@@ -39,8 +39,12 @@ export async function processDocument(formData: FormData) {
 
     // Use Mistral OCR to extract text from the document
     const extractionResult = await generateText({
-      model: mistral("mistral-ocr-latest"),
+      model: mistral("mistral-large-latest"),
       messages: [
+        {
+          role: "system",
+          content: "You are an OCR expert. Extract all text from the provided document while preserving formatting.",
+        },
         {
           role: "user",
           content: [
