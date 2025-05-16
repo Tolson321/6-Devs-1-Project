@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Upload, FileText, ImageIcon, Loader2 } from "lucide-react"
+import { Upload, FileText, ImageIcon, Loader2, XCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { useToast } from "@/components/ui/use-toast"
@@ -24,6 +24,7 @@ export default function FileUploader() {
     shareableLink: string
   } | null>(null)
   const [targetLanguage, setTargetLanguage] = useState("English")
+  const [processingInterval, setProcessingInterval] = useState<NodeJS.Timeout | null>(null)
   const { toast } = useToast()
 
   const progressInterval = () => {
@@ -37,6 +38,7 @@ export default function FileUploader() {
       }
       setProgress(Math.min(Math.round(currentProgress), 95))
     }, 1000)
+    setProcessingInterval(interval)
     return interval
   }
 
@@ -91,6 +93,21 @@ export default function FileUploader() {
     setResults(null)
   }
 
+  const cancelUpload = () => {
+    if (processingInterval) {
+      clearInterval(processingInterval)
+      setProcessingInterval(null)
+    }
+    
+    setIsProcessing(false)
+    setProgress(0)
+    
+    toast({
+      title: "Upload cancelled",
+      description: "Your document upload has been cancelled.",
+    })
+  }
+
   const handleSubmit = async () => {
     if (!file) return
 
@@ -121,6 +138,7 @@ export default function FileUploader() {
       })
     } finally {
       clearInterval(interval)
+      setProcessingInterval(null)
       setIsProcessing(false)
     }
   }
@@ -223,6 +241,17 @@ export default function FileUploader() {
                       ? "Extracting text with OCR..."
                       : "Translating content..."}
                 </span>
+              </div>
+              <div className="flex justify-center mt-2">
+                <Button 
+                  variant="destructive" 
+                  size="sm" 
+                  onClick={cancelUpload}
+                  className="flex items-center gap-1"
+                >
+                  <XCircle className="h-4 w-4" />
+                  Cancel Upload
+                </Button>
               </div>
             </div>
           )}

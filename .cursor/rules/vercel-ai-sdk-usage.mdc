@@ -7,12 +7,17 @@ alwaysApply: false
 
 This project leverages the Vercel AI SDK to enable document translation workflows, specifically targeting images and PDFs. The following summarizes the key usage patterns and architecture:
 
-- **OCR Document Processing:**
-  - The project uses the [`mistral-ocr-latest`](mdc:https:/docs.mistral.ai/capabilities/document/#tag/ocr/operation/ocr_v1_ocr_post) model for extracting text and structure from PDFs and images.
+- **OCR Document Processing (Current Implementation):**
+  - The project uses the `mistral-large-latest` model for extracting text and structure from PDFs and images.
   - The OCR processor preserves formatting (headers, paragraphs, lists, tables) and returns results in markdown for easy parsing and rendering.
   - It supports complex layouts, multi-column text, and mixed content, and can process documents at scale with high accuracy.
   - The OCR API can be called with a document URL or a base64-encoded file, and supports both images and PDFs.
-  - See the [Mistral OCR documentation](mdc:https:/docs.mistral.ai/capabilities/document/#tag/ocr/operation/ocr_v1_ocr_post) for request/response examples and advanced usage.
+  - See the [Mistral API documentation](mdc:https:/docs.mistral.ai/capabilities/document/#tag/ocr/operation/ocr_v1_ocr_post) for request/response examples and advanced usage.
+
+- **Legacy OCR Implementation (Deprecated):**
+  - Previously used the `mistral-ocr-latest` model which is no longer supported.
+  - This implementation has been replaced with the current `mistral-large-latest` model.
+  - The legacy model was designed for OCR tasks but is not compatible with the current Vercel AI SDK version.
 
 - **Translation Workflow:**
   - Users upload documents (images or PDFs) to the application.
