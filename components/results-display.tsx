@@ -30,14 +30,6 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
     })
   }
 
-  const shareResults = () => {
-    navigator.clipboard.writeText(results.shareableLink)
-    toast({
-      title: "Link copied to clipboard",
-      description: "Share this link with others to view your translated document.",
-    })
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
@@ -51,10 +43,6 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
           <Button variant="outline" size="sm" onClick={onReset}>
             <RotateCcw className="h-4 w-4 mr-2" />
             New Document
-          </Button>
-          <Button size="sm" onClick={shareResults}>
-            <Share2 className="h-4 w-4 mr-2" />
-            Share
           </Button>
         </div>
       </div>

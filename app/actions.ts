@@ -1,12 +1,14 @@
 "use server";
 
 import { mistral } from "@ai-sdk/mistral";
-import { put } from "@vercel/blob";
+import { put, del } from "@vercel/blob";
 import { generateText } from "ai";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
+import type { PutBlobResult } from '@vercel/blob';
 
 export async function processDocument(formData: FormData) {
+  let blob: PutBlobResult | null = null;
   try {
     // Get the file and target language from the form data
     const file = formData.get("file") as File;
@@ -18,8 +20,9 @@ export async function processDocument(formData: FormData) {
 
     // Upload file to Vercel Blob
     const filename = `${nanoid()}-${file.name}`;
-    const blob = await put(filename, file, {
+    blob = await put(filename, file, {
       access: "public",
+      cacheControlMaxAge: 60 * 1 // 2 minutes
     });
 
     // Determine file type
@@ -112,10 +115,17 @@ export async function processDocument(formData: FormData) {
       shareableLink,
     };
 
+    // Delete the blob after getting a translation
+    await del(blob.url); // no return value
+
     revalidatePath("/");
     return result;
   } catch (error) {
     console.error("Error processing document:", error);
+    if (blob) {
+      await del(blob.url);
+      console.log("Deleted blob", blob.url);
+    }
     throw new Error("Failed to process document");
   }
 }

@@ -64,7 +64,8 @@ For more details, see `marketing-docs/landing-page-copy-ideas.md` for the full p
 - Detect the source language
 - Translate the extracted text to a user-selected target language
 - Store the original and translated text in a Vercel blob store
-- Generate a shareable link for the translated document
+- -Generate a shareable link for the translated document- (Decided against by Zach, for user privacy and complexity reasons)
+- Delete the Vercel blob after getting a translation (Added by Zach, for user privacy and simplicity reasons)
 - Simple, user-friendly UI
 
 **Tech Stack:**
