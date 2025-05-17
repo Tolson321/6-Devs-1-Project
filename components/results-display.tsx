@@ -87,6 +87,9 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
           </Card>
         </TabsContent>
       </Tabs>
+      <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
+        Your uploaded file has been deleted from our servers to ensure your privacy
+      </p>
     </div>
   )
 }
