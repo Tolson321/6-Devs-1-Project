@@ -1,14 +1,13 @@
-import type React from "react"
-import "@/app/globals.css"
+import { ClerkProvider } from "@clerk/nextjs"
 import { Inter } from "next/font/google"
-import { ThemeProvider } from "@/components/theme-provider"
+import "./globals.css"
+import AuthLayout from "@/components/auth-layout"
 
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata = {
-  title: "Document Translator - OCR & Translation",
-  description: "Upload images or PDFs to extract and translate text using AI",
-    generator: 'v0.dev'
+  title: "DocTranslate - Document Translation Service",
+  description: "Translate your documents with AI-powered accuracy",
 }
 
 export default function RootLayout({
@@ -17,12 +16,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
-        </ThemeProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={inter.className}>
+          <AuthLayout>{children}</AuthLayout>
+        </body>
+      </html>
+    </ClerkProvider>
   )
 }

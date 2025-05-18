@@ -87,6 +87,23 @@ export default function ResultsDisplay({ results, onReset }: ResultsDisplayProps
           </Card>
         </TabsContent>
       </Tabs>
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-md font-medium">Shareable Link</CardTitle>
+          <Button variant="ghost" size="sm" onClick={() => copyToClipboard(results.shareableLink, "shareable link")}>
+            <Share2 className="h-4 w-4 mr-2" />
+            Copy Link
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="text-sm text-slate-600 dark:text-slate-400 break-all">
+            {results.shareableLink}
+          </div>
+          <p className="text-xs text-slate-500 dark:text-slate-500 mt-2">
+            This link will expire in 7 days
+          </p>
+        </CardContent>
+      </Card>
       <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
         Your uploaded file has been deleted from our servers to ensure your privacy
       </p>

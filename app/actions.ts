@@ -6,6 +6,39 @@ import { generateText } from "ai";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
 import type { PutBlobResult } from '@vercel/blob';
+import { sharedDocuments, type SharedDocument } from "@/lib/shared-documents";
+
+// Helper function to schedule blob deletion
+async function scheduleBlobDeletion(blobUrl: string) {
+  // Calculate one week from now in milliseconds
+  const oneWeekFromNow = Date.now() + (7 * 24 * 60 * 60 * 1000);
+  
+  // Store the deletion schedule in a database or cache
+  // For now, we'll use a simple setTimeout (Note: this is not persistent across server restarts)
+  setTimeout(async () => {
+    try {
+      await del(blobUrl);
+    } catch (error) {
+      console.error(`Failed to delete blob ${blobUrl}:`, error);
+    }
+  }, oneWeekFromNow - Date.now());
+}
+
+// Helper function to store document for sharing
+function storeDocumentForSharing(documentData: Omit<SharedDocument, 'createdAt'>) {
+  const shareId = nanoid();
+  sharedDocuments.set(shareId, {
+    ...documentData,
+    createdAt: new Date().toISOString(),
+  });
+
+  // Schedule document deletion after 1 week
+  setTimeout(() => {
+    sharedDocuments.delete(shareId);
+  }, 7 * 24 * 60 * 60 * 1000);
+
+  return shareId;
+}
 
 export async function processDocument(formData: FormData) {
   let blob: PutBlobResult | null = null;
@@ -22,8 +55,13 @@ export async function processDocument(formData: FormData) {
     const filename = `${nanoid()}-${file.name}`;
     blob = await put(filename, file, {
       access: "public",
-      cacheControlMaxAge: 60 * 1 // 2 minutes
+      cacheControlMaxAge: 60 * 60 * 24 * 7 // 1 week in seconds
     });
+
+    // Schedule the blob for deletion after 1 week
+    if (blob.url) {
+      await scheduleBlobDeletion(blob.url);
+    }
 
     // Determine file type
     const fileType = file.type;
@@ -103,8 +141,20 @@ export async function processDocument(formData: FormData) {
       ],
     });
 
-    // Generate a shareable link (in a real app, this would be a proper URL)
-    const shareableLink = `${process.env.VERCEL_URL || "http://localhost:3000"}/share/${nanoid()}`;
+    // Calculate expiration date
+    const expiresAt = new Date(Date.now() + (7 * 24 * 60 * 60 * 1000)).toISOString();
+
+    // Store document for sharing and generate share ID
+    const shareId = storeDocumentForSharing({
+      originalText: extractedText,
+      translatedText: translationResult.text,
+      sourceLanguage,
+      targetLanguage,
+      expiresAt
+    });
+
+    // Generate shareable link
+    const shareableLink = `${process.env.VERCEL_URL || "http://localhost:3000"}/share/${shareId}`;
 
     // Return the results
     const result = {
@@ -113,10 +163,8 @@ export async function processDocument(formData: FormData) {
       sourceLanguage,
       targetLanguage,
       shareableLink,
+      expiresAt
     };
-
-    // Delete the blob after getting a translation
-    await del(blob.url); // no return value
 
     revalidatePath("/");
     return result;
@@ -124,7 +172,6 @@ export async function processDocument(formData: FormData) {
     console.error("Error processing document:", error);
     if (blob) {
       await del(blob.url);
-      console.log("Deleted blob", blob.url);
     }
     throw new Error("Failed to process document");
   }
