@@ -1,5 +1,12 @@
 # 🧩 6 Devs, 1 Project
 
+
+
+Yo Harry this is some things to note from Thomas.. 
+
+I set up clerk auth and payments they are in the env we also bought the domain MedPDFNow.com and need a landing page ext for that. the pricing and market research can be found below. If you need my login info I will DM you for clerk. 
+
+
 > **Note:** Developers should reference the [Mistral API documentation](https://docs.mistral.ai/api/) for details on available endpoints, request formats, and model usage.
 >
 > **OCR Model:** This project uses the [`mistral-ocr-latest`](https://docs.mistral.ai/capabilities/document/#tag/ocr/operation/ocr_v1_ocr_post) model for document OCR. It extracts structured text from PDFs and images, preserving formatting and returning results in markdown. See the [OCR documentation](https://docs.mistral.ai/capabilities/document/#tag/ocr/operation/ocr_v1_ocr_post) for details and usage examples.
@@ -74,7 +81,7 @@ For more details, see `marketing-docs/landing-page-copy-ideas.md` for the full p
 - React (with functional components)
 - Tailwind CSS (for styling)
 - Vercel AI SDK (using the Mistral model for OCR and translation)
-- Vercel Blob Store (for file storage and shareable links)
+- Vercel Blob Store (for file storage and shareable links) redis and can save for a time period
 
 **Design Direction:**
 
