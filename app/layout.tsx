@@ -1,9 +1,11 @@
 import { ClerkProvider } from "@clerk/nextjs"
 import { Inter } from "next/font/google"
 import "./globals.css"
-import AuthLayout from "@/components/auth-layout"
 
 const inter = Inter({ subsets: ["latin"] })
+
+// Make the layout dynamic
+export const dynamic = "force-dynamic"
 
 export const metadata = {
   title: "DocTranslate - Document Translation Service",
@@ -15,11 +17,15 @@ export default function RootLayout({
 }: {
   children: React.ReactNode
 }) {
+  console.log('🎨 Root layout rendering');
+  
   return (
     <ClerkProvider>
       <html lang="en">
         <body className={inter.className}>
-          <AuthLayout>{children}</AuthLayout>
+          <main className="min-h-screen bg-gray-50">
+            {children}
+          </main>
         </body>
       </html>
     </ClerkProvider>
