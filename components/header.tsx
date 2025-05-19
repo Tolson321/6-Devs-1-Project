@@ -1,5 +1,6 @@
 import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton, useClerk } from "@clerk/nextjs";
 import { useAuth } from "@clerk/nextjs";
+import Link from "next/link";
 
 export function Header() {
   const { isSignedIn, userId } = useAuth();
@@ -24,6 +25,12 @@ export function Header() {
           
           <SignedIn>
             <div className="flex items-center gap-4">
+              <Link 
+                href="/files" 
+                className="text-sm text-slate-600 hover:text-slate-900"
+              >
+                My Files
+              </Link>
               <UserButton afterSignOutUrl="/" />
               <button
                 onClick={() => signOut()}

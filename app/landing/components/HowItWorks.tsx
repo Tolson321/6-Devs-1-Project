@@ -1,83 +1,54 @@
 'use client';
 
 import React from 'react';
-import { Upload, Languages, FileCheck, Share2 } from 'lucide-react';
-import Link from 'next/link';
+import { UploadCloud, ScanSearch, FileText, CheckCircle } from 'lucide-react';
 
 const HowItWorks = () => {
+  const steps = [
+    {
+      icon: <UploadCloud className="h-12 w-12 text-sky-600 mb-4" />,
+      title: "1. Upload Document",
+      description: "Drag & drop or select your PDF, JPG, or PNG file. Quick and easy."
+    },
+    {
+      icon: <ScanSearch className="h-12 w-12 text-sky-600 mb-4" />,
+      title: "2. AI Translates Securely",
+      description: "Mistral AI accurately translates your document while ensuring data privacy. Language auto-detected."
+    },
+    {
+      icon: <FileText className="h-12 w-12 text-sky-600 mb-4" />,
+      title: "3. Get English Report Fast",
+      description: "Receive your clear English translation in under an hour, ready for use."
+    }
+  ];
+
   return (
-    <div id="how-it-works" className="py-16 px-4 md:px-8 bg-gray-100 scroll-mt-16">
-      <div className="max-w-6xl mx-auto">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-12 text-gray-900">
-          How It Works
-        </h2>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-          <div className="space-y-12">
-            <div className="flex items-start space-x-4">
-              <div className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
-                1
-              </div>
-              <div>
-                <h3 className="font-bold text-lg mb-1 text-gray-900">Upload your medical docs</h3>
-                <div className="h-24 w-full bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center">
-                  <Upload className="h-6 w-6 text-gray-400" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-start space-x-4">
-              <div className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
-                3
-              </div>
-              <div>
-                <h3 className="font-bold text-lg mb-1 text-gray-900">Receive your order by rush translation (optional)</h3>
-                <div className="h-24 w-full bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center">
-                  <FileCheck className="h-6 w-6 text-gray-400" />
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div className="space-y-12">
-            <div className="flex items-start space-x-4">
-              <div className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
-                2
-              </div>
-              <div>
-                <h3 className="font-bold text-lg mb-1 text-gray-900">Choose your preferred language</h3>
-                <div className="h-24 w-full bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center">
-                  <Languages className="h-6 w-6 text-gray-400" />
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex items-start space-x-4">
-              <div className="bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0">
-                4
-              </div>
-              <div>
-                <h3 className="font-bold text-lg mb-1 text-gray-900">Share the link with your doctor or insurer</h3>
-                <div className="h-24 w-full bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center">
-                  <Share2 className="h-6 w-6 text-gray-400" />
-                </div>
-              </div>
-            </div>
-          </div>
+    <section id="how-it-works" className="bg-white py-16 md:py-24 px-4 md:px-6">
+      <div className="container mx-auto">
+        <div className="text-center mb-12 md:mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
+            Translate Docs in 3 Easy Steps
+          </h2>
+          <p className="text-lg text-slate-600 max-w-2xl mx-auto">
+            Fast, simple, and secure translation when you need it most.
+          </p>
         </div>
-        
-        <div className="mt-12 text-center text-sm text-gray-600">
-          <p>Industry-recognized, safe, trusted. 100% compliant.</p>
-          <p>Locations in USA, Europe, Asia, and many more.</p>
-        </div>
-        
-        <div className="mt-8 text-center">
-          <Link href="/" className="inline-block bg-blue-600 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors">
-            Get Started Translating
-          </Link>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+          {steps.map((step, index) => (
+            <div 
+              key={index} 
+              className="text-center p-6 bg-slate-50 rounded-lg shadow-sm border border-slate-200 hover:shadow-md transition-shadow"
+            >
+              <div className="flex justify-center">
+                {step.icon}
+              </div>
+              <h3 className="text-xl font-semibold text-slate-800 mb-3">{step.title}</h3>
+              <p className="text-slate-600 text-sm">{step.description}</p>
+            </div>
+          ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 };
 
