@@ -58,6 +58,34 @@ function storeDocumentForSharing(
   return shareId;
 }
 
+export async function getUserUploadsToday(userId: string) {
+  if (!userId) return 0;
+
+  try {
+    // List all files in the user's folder
+    const prefix = `user-${userId}/`;
+    const { blobs } = await list({ prefix });
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Set to the beginning of today
+
+    // Filter blobs uploaded today
+    const uploadsToday = (blobs as unknown as BlobWithMetadata[]).filter(
+      (blob) => {
+        if (!blob.metadata?.uploadedAt) return false;
+
+        const uploadDate = new Date(blob.metadata.uploadedAt);
+        return uploadDate >= today;
+      }
+    );
+
+    return uploadsToday.length;
+  } catch (error) {
+    console.error("Error counting today's uploads:", error);
+    return 0; // Return 0 in case of error
+  }
+}
+
 export async function processDocument(formData: FormData, userId?: string) {
   let blob: PutBlobResult | null = null;
   try {
@@ -80,11 +108,12 @@ export async function processDocument(formData: FormData, userId?: string) {
     expiryDate.setDate(expiryDate.getDate() + 7);
     const expiresAt = expiryDate.toISOString();
 
-    // Use @ts-ignore for metadata as the types may be outdated
-    // @ts-ignore
+    // Even though TypeScript definitions might not include metadata,
+    // the Vercel Blob API does support it according to the documentation
     blob = await put(filename, file, {
       access: "public",
       cacheControlMaxAge: 60 * 60 * 24 * 7, // 1 week in seconds
+      // @ts-ignore - Vercel Blob TypeScript definitions may be outdated
       metadata: {
         userId: userId || "anonymous",
         originalName: file.name,

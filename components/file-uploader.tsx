@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useRef } from "react"
-import { Upload, FileText, ImageIcon, Loader2, XCircle, X, Trash2, File } from "lucide-react"
+import { Upload, FileText, ImageIcon, Loader2, XCircle, X, Trash2, File, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/components/ui/use-toast"
 import { processDocument } from "@/app/actions"
@@ -11,7 +11,11 @@ import ResultsDisplay from "./results-display"
 import LanguageSelector from "./language-selector"
 import { useAuth } from "@clerk/nextjs"
 
-export default function FileUploader() {
+interface FileUploaderProps {
+  isLimitReached?: boolean
+}
+
+export default function FileUploader({ isLimitReached = false }: FileUploaderProps) {
   const [files, setFiles] = useState<File[]>([])
   const [isDragging, setIsDragging] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)
@@ -58,6 +62,15 @@ export default function FileUploader() {
     e.preventDefault()
     setIsDragging(false)
 
+    if (isLimitReached) {
+      toast({
+        title: "Daily limit reached",
+        description: "You've reached your daily upload limit. Please try again tomorrow or upgrade to PRO.",
+        variant: "destructive",
+      })
+      return
+    }
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const droppedFiles = Array.from(e.dataTransfer.files)
       validateAndAddFiles(droppedFiles)
@@ -65,6 +78,15 @@ export default function FileUploader() {
   }
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isLimitReached) {
+      toast({
+        title: "Daily limit reached",
+        description: "You've reached your daily upload limit. Please try again tomorrow or upgrade to PRO.",
+        variant: "destructive",
+      })
+      return
+    }
+    
     if (e.target.files && e.target.files.length > 0) {
       const selectedFiles = Array.from(e.target.files)
       validateAndAddFiles(selectedFiles)
@@ -229,36 +251,58 @@ export default function FileUploader() {
           </div>
 
           <div className="p-6 overflow-y-auto max-h-[60vh]">
+            {/* Warning message when limit is reached */}
+            {isLimitReached && (
+              <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-md">
+                <div className="flex items-center">
+                  <AlertTriangle className="h-5 w-5 text-red-500 mr-2" />
+                  <div>
+                    <h3 className="font-medium text-red-800 dark:text-red-400">Upload limit reached</h3>
+                    <p className="text-sm text-red-600 dark:text-red-300 mt-1">
+                      You've reached your daily upload limit of 5 files. Please try again tomorrow or upgrade to PRO for unlimited uploads.
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white" 
+                  onClick={() => window.location.href = "/pricing"}
+                >
+                  Upgrade to PRO
+                </Button>
+              </div>
+            )}
+            
             {/* Conditional block for non-processing state */}
             {!isProcessing && (
               <>
                 {/* Language Selection */}
                 <div className="mb-6">
-                  <LanguageSelector value={targetLanguageGlobal} onChange={setTargetLanguageGlobal} disabled={isProcessing} />
+                  <LanguageSelector value={targetLanguageGlobal} onChange={setTargetLanguageGlobal} disabled={isProcessing || isLimitReached} />
                 </div>
                 
                 {/* Upload Area */}
                 <div 
                   className={`
-                    border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-lg
+                    border-2 border-dashed ${isLimitReached ? 'border-red-300 dark:border-red-800/50' : 'border-slate-300 dark:border-slate-600'} rounded-lg
                     ${files.length > 0 ? 'mb-4' : 'mb-6'}
+                    ${isLimitReached ? 'opacity-50 cursor-not-allowed' : ''}
                   `}
-                  onDragOver={handleDragOver}
-                  onDragLeave={handleDragLeave}
+                  onDragOver={!isLimitReached ? handleDragOver : undefined}
+                  onDragLeave={!isLimitReached ? handleDragLeave : undefined}
                   onDrop={handleDrop}
                 >
                   <div 
                     className={`
                       flex flex-col items-center justify-center py-10 px-6 text-center
-                      transition-colors duration-200 ease-in-out cursor-pointer
+                      transition-colors duration-200 ease-in-out ${isLimitReached ? 'cursor-not-allowed' : 'cursor-pointer'}
                       ${isDragging ? 'bg-indigo-50 dark:bg-indigo-900/20' : ''}
                     `}
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={!isLimitReached ? () => fileInputRef.current?.click() : undefined}
                   >
                     <div className="relative mb-4">
                       <div className="h-20 w-20 bg-indigo-100 dark:bg-indigo-900/40 rounded-full flex items-center justify-center">
                         <div className="h-16 w-16 rounded-full bg-indigo-50 dark:bg-indigo-800/40 flex items-center justify-center">
-                          <Upload className="h-8 w-8 text-indigo-500 dark:text-indigo-400" />
+                          <Upload className={`h-8 w-8 ${isLimitReached ? 'text-slate-400 dark:text-slate-600' : 'text-indigo-500 dark:text-indigo-400'}`} />
                         </div>
                       </div>
                     </div>
@@ -267,10 +311,10 @@ export default function FileUploader() {
                     {files.length === 0 ? (
                       <>
                         <h3 className="text-lg font-medium mb-2 text-slate-700 dark:text-slate-200">
-                          Click to Upload or drag and drop
+                          {isLimitReached ? "Upload limit reached" : "Click to Upload or drag and drop"}
                         </h3>
                         <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                          (Max. File size: 10 MB)
+                          {isLimitReached ? "Please try again tomorrow or upgrade to PRO" : "(Max. File size: 10 MB)"}
                         </p>
                       </>
                     ) : (
@@ -287,13 +331,13 @@ export default function FileUploader() {
                       onChange={handleFileChange}
                       accept=".pdf,.jpg,.jpeg,.png"
                       multiple
-                      disabled={isProcessing} // This is fine, input itself is part of non-processing block
+                      disabled={isProcessing || isLimitReached}
                     />
                   </div>
                 </div>
 
                 {/* Display Selected Files */}
-                {files.length > 0 && (
+                {files.length > 0 && !isLimitReached && (
                   <div className="mb-6 space-y-3 max-h-60 overflow-y-auto p-1">
                     <h4 className="text-sm font-medium text-slate-600 dark:text-slate-300">Selected Files:</h4>
                     {files.map((file, index) => (
@@ -357,7 +401,7 @@ export default function FileUploader() {
             )}
             <Button 
               onClick={handleSubmit} 
-              disabled={files.length === 0 || isProcessing}
+              disabled={files.length === 0 || isProcessing || isLimitReached}
               className="min-w-[120px]"
             >
               {isProcessing ? (

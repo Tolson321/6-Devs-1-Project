@@ -1,11 +1,20 @@
 # 🧩 6 Devs, 1 Project
 
+## Project Status
 
+| Dev # | Role                                       | Status      |
+| ----- | ------------------------------------------ | ----------- |
+| 0     | Initial Setup                              | ✅ Complete |
+| 1     | Planning (Concept + MVP + PDR)             | ✅ Complete |
+| 2     | Frontend skeleton                          | In Progress |
+| 3     | Design & branding                          | Pending     |
+| 4     | Backend & APIs                             | Pending     |
+| 5     | Auth & security                            | Pending     |
+| 6     | QA, launch, and prep for Product Hunt/demo | Pending     |
 
-Yo Harry this is some things to note from Thomas.. 
+Yo Harry this is some things to note from Thomas..
 
-I set up clerk auth and payments they are in the env we also bought the domain MedPDFNow.com and need a landing page ext for that. the pricing and market research can be found below. If you need my login info I will DM you for clerk. 
-
+I set up clerk auth and payments they are in the env we also bought the domain MedPDFNow.com and need a landing page ext for that. the pricing and market research can be found below. If you need my login info I will DM you for clerk.
 
 > **Note:** Developers should reference the [Mistral API documentation](https://docs.mistral.ai/api/) for details on available endpoints, request formats, and model usage.
 >
@@ -141,10 +150,12 @@ For more details, see the [Project Structure Guide](.cursor/rules/project-struct
 ## 🏃 Next Steps for Developers
 
 - **Dev #2:**
+
   - Refine the frontend skeleton, improve UX, and ensure smooth file upload/processing flow.
   - Add error handling, loading states, and polish the UI.
 
 - **Dev #3:**
+
   - Add design and branding (colors, logo, typography, etc.).
 
   ### 1. Snapshot of the Competitive Landscape
@@ -161,7 +172,7 @@ For more details, see the [Project Structure Guide](.cursor/rules/project-struct
 
 1. **< 1-hour SLA** for entire multi-page PDFs (Smallpdf doesn’t promise a clock; DeepL throttles size).
 2. **Medical-grade privacy**: instant encryption + auto-delete timer (DeepL reserves for Pro; competitors vague).
-3. **Share-ready link** that carries *both* source & translated text with layout preview (none do both).
+3. **Share-ready link** that carries _both_ source & translated text with layout preview (none do both).
 4. **Handwriting / mixed layout tolerance** via the new `mistral-ocr-latest` model.
 5. **Mobile-optimized one-hand flow** tuned for “injured traveler” scenarios, not desktop office users.
 
@@ -171,9 +182,9 @@ For more details, see the [Project Structure Guide](.cursor/rules/project-struct
 
 | Principle                                | Why It Matters (User & Competitor Insight)                                                                                                                                          | Implementation Notes                                                                                                              |
 | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| **Clarity-First UI**                     | Emergency-docs persona is stressed, using a phone; must see *one obvious action* (“Upload & Translate”). Smallpdf’s single-drop zone outperforms DocTranslator’s multi-step wizard. | Hero section with drag-and-drop **card** + capture-from-camera button. Keep other options (history, pricing) behind a kebab menu. |
+| **Clarity-First UI**                     | Emergency-docs persona is stressed, using a phone; must see _one obvious action_ (“Upload & Translate”). Smallpdf’s single-drop zone outperforms DocTranslator’s multi-step wizard. | Hero section with drag-and-drop **card** + capture-from-camera button. Keep other options (history, pricing) behind a kebab menu. |
 | **Perceived Speed**                      | DeepL & DocTranslator leave users in a black-box wait. Showing progress lowers abandonment.                                                                                         | Inline progress bar (“Scanning 3 pages… 12 s remaining”), optimistic UI that pre-loads share link skeleton.                       |
-| **Trust & Privacy Signals**              | Healthcare docs demand HIPAA-like confidence. Smallpdf relies on badges; we add a visible *Auto-delete in 24 h* chip under the upload zone.                                         | Lock icon + tooltip linking to privacy policy; optional toggle for “delete on download”.                                          |
+| **Trust & Privacy Signals**              | Healthcare docs demand HIPAA-like confidence. Smallpdf relies on badges; we add a visible _Auto-delete in 24 h_ chip under the upload zone.                                         | Lock icon + tooltip linking to privacy policy; optional toggle for “delete on download”.                                          |
 | **Side-by-Side Viewer**                  | DeepL forces a file download. A live viewer lets users skim for errors before sharing.                                                                                              | Two-pane scroll-locked view (original left, translation right), with copy & “Flag mistranslation” CTA.                            |
 | **One-Tap Reshare**                      | Travelers often forward to insurer/doctor via WhatsApp/email.                                                                                                                       | Generate `https://docx.ai/s/<id>` link with built-in viewer and PDF export; share sheet on mobile.                                |
 | **Accessibility & Internationalisation** | Target market spans locales; color contrast and language fallback vital.                                                                                                            | WCAG AA contrast ratios, dynamic RTL layout when target language is Arabic/Hebrew.                                                |
@@ -200,26 +211,30 @@ For more details, see the [Project Structure Guide](.cursor/rules/project-struct
 
 1. **Landing / Hero**
 
-   * Logo + tagline
-   * Upload card (tap to pick file or “Scan with camera”)
-   * Language auto-detect pill → dropdown for target language
+   - Logo + tagline
+   - Upload card (tap to pick file or “Scan with camera”)
+   - Language auto-detect pill → dropdown for target language
+
 2. **Processing Screen**
 
-   * Circular progress with percentages
-   * File thumbnail, page count, “Cancel” link
+   - Circular progress with percentages
+   - File thumbnail, page count, “Cancel” link
+
 3. **Results Screen**
 
-   * Top: success ribbon + auto-delete countdown (amber chip)
-   * Two-pane viewer (toggle “Side-by-side / Stacked”)
-   * Sticky footer: Copy translation | Download PDF | Share Link
+   - Top: success ribbon + auto-delete countdown (amber chip)
+   - Two-pane viewer (toggle “Side-by-side / Stacked”)
+   - Sticky footer: Copy translation | Download PDF | Share Link
+
 4. **Share View (`/s/[id]`)**
 
-   * Read-only viewer with same palette
-   * “Request fresh translation” button if expired
+   - Read-only viewer with same palette
+   - “Request fresh translation” button if expired
+
 5. **Error States**
 
-   * Friendly illustrations (paper plane crash)
-   * Retry / contact support links
+   - Friendly illustrations (paper plane crash)
+   - Retry / contact support links
 
 ---
 
@@ -247,9 +262,9 @@ For more details, see the [Project Structure Guide](.cursor/rules/project-struct
 
 #### Next Steps
 
-* **Dev #2** can implement the color tokens in Tailwind (`tailwind.config.ts` – extend colors).
-* Add the countdown privacy chip component and progress UI.
-* **Designers** can use the Canva brief to spin up hero graphics and component mock-ups for review.
+- **Dev #2** can implement the color tokens in Tailwind (`tailwind.config.ts` – extend colors).
+- Add the countdown privacy chip component and progress UI.
+- **Designers** can use the Canva brief to spin up hero graphics and component mock-ups for review.
 
 This foundation positions us squarely between the accuracy of DeepL and the ease of Smallpdf, while owning **speed**, **medical-grade privacy**, and a **mobile emergency flow**.
 
@@ -262,7 +277,6 @@ This foundation positions us squarely between the accuracy of DeepL and the ease
 [7]: https://www.linkedin.com/pulse/using-color-ux-healthcare-aaron-usiskin-0nbwe?utm_source=chatgpt.com "Using Color in UX / Healthcare - LinkedIn"
 [8]: https://www.figma.com/colors/blue-green/?utm_source=chatgpt.com "Blue-Green Color: Hex Code, Palettes & Meaning - Figma"
 [9]: https://www.inspiringapps.com/blog/the-importance-of-color-in-design?utm_source=chatgpt.com "The Psychology of Color in Branding Digital Products | InspiringApps"
-
 
 - **Dev #4:**
   - Expand backend/API logic, add database or persistent storage if needed, and improve shareable link functionality.
