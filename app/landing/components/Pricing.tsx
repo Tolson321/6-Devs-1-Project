@@ -2,121 +2,154 @@
 
 import React from 'react';
 import { CheckCircle, Check } from 'lucide-react';
-import { useAuth } from '@clerk/nextjs';
+import { useAuth } from '@/components/auth-provider';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 const Pricing = () => {
-  const { userId } = useAuth();
   const router = useRouter();
+  const { user } = useAuth();
 
-  const tiers = [
-    {
-      name: "Free",
-      price: "$0",
-      priceSuffix: "",
-      description: "For quick translations of a few documents.",
-      image: "/coconut.png",
-      features: [
-        "Up to 5 documents per month",
-        "Basic language support",
-        "7-day link expiration",
-        "Standard processing speed"
-      ],
-      buttonText: "Get Started",
-      buttonVariant: "outline",
-      ctaAction: () => {
-        if (userId) {
-          router.push('/upload');
-        } else {
-          router.push('/sign-up');
-        }
-      }
-    },
-    {
-      name: "Pro",
-      price: "$9.99",
-      priceSuffix: "/month",
-      description: "Unlimited translations & all advanced features.",
-      image: "/strawb.png",
-      features: [
-        "Unlimited documents",
-        "All language support",
-        "30-day link expiration",
-        "Priority processing",
-        "Advanced OCR support",
-        "Bulk document processing"
-      ],
-      buttonText: "Upgrade to Pro",
-      buttonVariant: "default",
-      ctaAction: () => {
-        if (userId) {
-          router.push('/upload');
-        } else {
-          router.push('/sign-up?plan=pro');
-        }
-      }
+  const handleGetStarted = () => {
+    if (user) {
+      router.push('/upload');
+    } else {
+      router.push('/signup');
     }
-  ];
+  };
 
   return (
-    <section id="pricing" className="bg-slate-50 py-16 md:py-24 px-4 md:px-6">
-      <div className="container mx-auto">
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-slate-800 mb-4">
-            Choose Your Plan
-          </h2>
-          <p className="text-lg text-slate-600 max-w-xl mx-auto">
-            Start translating for free, or go Pro for unlimited use and advanced features.
+    <div className="bg-white py-24 sm:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="text-base font-semibold leading-7 text-indigo-600">Pricing</h2>
+          <p className="mt-2 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+            Choose the right plan for&nbsp;you
           </p>
         </div>
-
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {tiers.map((tier) => (
-            <div key={tier.name} className="flex flex-col bg-white rounded-xl shadow-lg overflow-hidden border border-slate-200">
-              {tier.image && (
-                <div className="relative h-40 w-full bg-slate-100">
-                  <Image
-                    src={tier.image}
-                    alt={`${tier.name} plan image`}
-                    layout="fill"
-                    objectFit="contain"
-                    className="p-4"
-                  />
-                </div>
-              )}
-              <div className="p-6 md:p-8 flex flex-col flex-grow">
-                <h3 className="text-2xl font-semibold text-slate-800">{tier.name}</h3>
-                <div className="mt-3 mb-1">
-                  <span className="text-4xl font-bold text-slate-900">{tier.price}</span>
-                  {tier.priceSuffix && <span className="text-slate-500">{tier.priceSuffix}</span>}
-                </div>
-                <p className="text-sm text-slate-600 mb-6 min-h-[40px]">{tier.description}</p>
-                
-                <ul className="space-y-3 mb-8 flex-grow">
-                  {tier.features.map((feature) => (
-                    <li key={feature} className="flex items-start">
-                      <Check className="h-5 w-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                      <span className="text-slate-600 text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <button 
-                  onClick={tier.ctaAction}
-                  className={`w-full px-6 py-3 rounded-md font-semibold text-lg transition-colors shadow-md 
-                    ${tier.buttonVariant === 'default' 
-                      ? 'bg-sky-600 text-white hover:bg-sky-700' 
-                      : 'bg-white text-sky-700 border border-sky-600 hover:bg-sky-50'}`}
-                >
-                  {tier.buttonText}
-                </button>
+        <p className="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-600">
+          Whether you're translating a single document or need ongoing translation services, we have a plan that fits your needs.
+        </p>
+        <div className="isolate mx-auto mt-16 grid max-w-md grid-cols-1 gap-y-8 sm:mt-20 lg:mx-0 lg:max-w-none lg:grid-cols-3">
+          {/* Free Tier */}
+          <div className="flex flex-col justify-between rounded-3xl bg-white p-8 ring-1 ring-gray-200 xl:p-10">
+            <div>
+              <div className="flex items-center justify-between gap-x-4">
+                <h3 className="text-lg font-semibold leading-8 text-gray-900">Free</h3>
               </div>
+              <p className="mt-4 text-sm leading-6 text-gray-600">Perfect for trying out our service</p>
+              <p className="mt-6 flex items-baseline gap-x-1">
+                <span className="text-4xl font-bold tracking-tight text-gray-900">$0</span>
+                <span className="text-sm font-semibold leading-6 text-gray-600">/month</span>
+              </p>
+              <ul role="list" className="mt-8 space-y-3 text-sm leading-6 text-gray-600">
+                <li className="flex gap-x-3">
+                  <Check className="h-6 w-5 flex-none text-indigo-600" />
+                  <span>1 document per day</span>
+                </li>
+                <li className="flex gap-x-3">
+                  <Check className="h-6 w-5 flex-none text-indigo-600" />
+                  <span>Basic translation</span>
+                </li>
+                <li className="flex gap-x-3">
+                  <Check className="h-6 w-5 flex-none text-indigo-600" />
+                  <span>7-day file retention</span>
+                </li>
+              </ul>
             </div>
-          ))}
+            <button
+              onClick={handleGetStarted}
+              className="mt-8 block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Get started
+            </button>
+          </div>
+
+          {/* Pro Tier */}
+          <div className="flex flex-col justify-between rounded-3xl bg-white p-8 ring-1 ring-gray-200 xl:p-10">
+            <div>
+              <div className="flex items-center justify-between gap-x-4">
+                <h3 className="text-lg font-semibold leading-8 text-gray-900">Pro</h3>
+                <p className="rounded-full bg-indigo-600/10 px-2.5 py-1 text-xs font-semibold leading-5 text-indigo-600">
+                  Most popular
+                </p>
+              </div>
+              <p className="mt-4 text-sm leading-6 text-gray-600">For individuals and small teams</p>
+              <p className="mt-6 flex items-baseline gap-x-1">
+                <span className="text-4xl font-bold tracking-tight text-gray-900">$29</span>
+                <span className="text-sm font-semibold leading-6 text-gray-600">/month</span>
+              </p>
+              <ul role="list" className="mt-8 space-y-3 text-sm leading-6 text-gray-600">
+                <li className="flex gap-x-3">
+                  <Check className="h-6 w-5 flex-none text-indigo-600" />
+                  <span>10 documents per day</span>
+                </li>
+                <li className="flex gap-x-3">
+                  <Check className="h-6 w-5 flex-none text-indigo-600" />
+                  <span>Advanced translation</span>
+                </li>
+                <li className="flex gap-x-3">
+                  <Check className="h-6 w-5 flex-none text-indigo-600" />
+                  <span>30-day file retention</span>
+                </li>
+                <li className="flex gap-x-3">
+                  <Check className="h-6 w-5 flex-none text-indigo-600" />
+                  <span>Priority support</span>
+                </li>
+              </ul>
+            </div>
+            <button
+              onClick={handleGetStarted}
+              className="mt-8 block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Get started
+            </button>
+          </div>
+
+          {/* Enterprise Tier */}
+          <div className="flex flex-col justify-between rounded-3xl bg-white p-8 ring-1 ring-gray-200 xl:p-10">
+            <div>
+              <div className="flex items-center justify-between gap-x-4">
+                <h3 className="text-lg font-semibold leading-8 text-gray-900">Enterprise</h3>
+              </div>
+              <p className="mt-4 text-sm leading-6 text-gray-600">For large organizations</p>
+              <p className="mt-6 flex items-baseline gap-x-1">
+                <span className="text-4xl font-bold tracking-tight text-gray-900">$99</span>
+                <span className="text-sm font-semibold leading-6 text-gray-600">/month</span>
+              </p>
+              <ul role="list" className="mt-8 space-y-3 text-sm leading-6 text-gray-600">
+                <li className="flex gap-x-3">
+                  <Check className="h-6 w-5 flex-none text-indigo-600" />
+                  <span>Unlimited documents</span>
+                </li>
+                <li className="flex gap-x-3">
+                  <Check className="h-6 w-5 flex-none text-indigo-600" />
+                  <span>Premium translation</span>
+                </li>
+                <li className="flex gap-x-3">
+                  <Check className="h-6 w-5 flex-none text-indigo-600" />
+                  <span>90-day file retention</span>
+                </li>
+                <li className="flex gap-x-3">
+                  <Check className="h-6 w-5 flex-none text-indigo-600" />
+                  <span>24/7 support</span>
+                </li>
+                <li className="flex gap-x-3">
+                  <Check className="h-6 w-5 flex-none text-indigo-600" />
+                  <span>Custom integrations</span>
+                </li>
+              </ul>
+            </div>
+            <button
+              onClick={handleGetStarted}
+              className="mt-8 block rounded-md bg-indigo-600 px-3 py-2 text-center text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Get started
+            </button>
+          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

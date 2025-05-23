@@ -1,17 +1,18 @@
-import { ClerkProvider } from "@clerk/nextjs"
-import { Inter } from "next/font/google"
-import "./globals.css"
-import GlobalNavbar from "@/components/GlobalNavbar"
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { AuthProvider } from "@/components/auth-provider";
+import { Toaster } from "@/components/ui/toaster";
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ subsets: ["latin"] });
 
 // Make the layout dynamic
-export const dynamic = "force-dynamic"
+export const dynamic = "force-dynamic";
 
-export const metadata = {
-  title: "DocTranslate - Document Translation Service",
-  description: "Translate your documents with AI-powered accuracy",
-}
+export const metadata: Metadata = {
+  title: "Document Translation App",
+  description: "Upload and translate your documents with AI",
+};
 
 export default function RootLayout({
   children,
@@ -21,15 +22,13 @@ export default function RootLayout({
   console.log('🎨 Root layout rendering');
   
   return (
-    <ClerkProvider>
-      <html lang="en">
-        <body className={inter.className}>
-          <GlobalNavbar />
-          <main className="min-h-screen bg-gray-50">
-            {children}
-          </main>
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en">
+      <body className={inter.className}>
+        <AuthProvider>
+          {children}
+          <Toaster />
+        </AuthProvider>
+      </body>
+    </html>
   )
 }

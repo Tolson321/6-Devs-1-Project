@@ -1,6 +1,9 @@
+"use client";
+
+import React, { useEffect } from "react";
+import { useAuth } from "@/components/auth-provider";
+import { useRouter } from "next/navigation";
 import { getUserFiles } from "@/app/actions";
-import { currentUser } from "@clerk/nextjs/server";
-// import { HeaderWrapper } from "@/components/header-wrapper";
 import { ProtectedRoute } from "@/components/protected-route";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Toaster } from "@/components/ui/toaster";
@@ -19,25 +22,30 @@ const FloatingDocuments = dynamic(
   { ssr: false }
 );
 
-export default async function FilesPage() {
-  const user = await currentUser();
-  const userId = user?.id;
-  
+const FilesPage = () => {
+  const { user } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.replace("/login");
+    }
+  }, [user, router]);
+
+  if (!user) return null;
+
   let files: FileType[] = [];
   let error: string | null = null;
   
-  if (userId) {
-    try {
-      files = await getUserFiles(userId);
-    } catch (e) {
-      error = "Failed to load your files. Please try again later.";
-      console.error(e);
-    }
+  try {
+    files = await getUserFiles(user.id);
+  } catch (e) {
+    error = "Failed to load your files. Please try again later.";
+    console.error(e);
   }
-  
+
   return (
     <>
-      {/* <HeaderWrapper /> */}
       <main className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-indigo-100 dark:from-slate-950 dark:via-indigo-950 dark:to-slate-900 relative">
         {/* Floating documents background - positioned absolutely within the relative container */}
         <div className="absolute inset-0 overflow-hidden">
@@ -74,4 +82,6 @@ export default async function FilesPage() {
       </main>
     </>
   );
-} 
+};
+
+export default FilesPage; 

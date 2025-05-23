@@ -3,54 +3,66 @@
 import React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useAuth } from '@clerk/nextjs';
+import { useAuth } from '@/components/auth-provider';
 import { useRouter } from 'next/navigation';
 
 const Hero = () => {
-  const { userId } = useAuth();
   const router = useRouter();
+  const { user } = useAuth();
 
-  const handleCTAClick = () => {
-    if (userId) {
+  const handleGetStarted = () => {
+    if (user) {
       router.push('/upload');
     } else {
-      router.push('/sign-up');
+      router.push('/signup');
     }
   };
 
   return (
-    <section className="bg-white py-16 md:py-24 px-4 md:px-6">
-      <div className="container mx-auto grid md:grid-cols-2 items-center gap-12">
-        <div className="space-y-6 text-center md:text-left">
-          <h1 className="text-4xl md:text-5xl font-bold text-slate-800 leading-tight">
-            Medical Docs Abroad? Get <span className="text-sky-600">Fast, Clear</span> English Translations.
-          </h1>
-          <p className="text-lg text-slate-600 max-w-md mx-auto md:mx-0">
-            Translate foreign medical reports into clear English in under an hour. Secure, accurate, and ready for insurance or your doctor.
-          </p>
-          <div className="pt-4">
-            <button 
-              onClick={handleCTAClick}
-              className="inline-block bg-sky-600 text-white px-8 py-4 rounded-md font-semibold hover:bg-sky-700 transition-colors text-lg shadow-md"
-            >
-              Upload & Translate Your Document
-            </button>
+    <div className="relative isolate">
+      <div className="mx-auto max-w-7xl px-6 pb-24 pt-10 sm:pb-32 lg:flex lg:px-8 lg:py-40">
+        <div className="mx-auto max-w-2xl flex-shrink-0 lg:mx-0 lg:max-w-xl lg:pt-8">
+          <div className="mt-24 sm:mt-32 lg:mt-16">
+            <a href="#" className="inline-flex space-x-6">
+              <span className="rounded-full bg-indigo-500/10 px-3 py-1 text-sm font-semibold leading-6 text-indigo-600 ring-1 ring-inset ring-indigo-500/20">
+                What's new
+              </span>
+              <span className="inline-flex items-center space-x-2 text-sm font-medium leading-6 text-gray-600">
+                <span>Just shipped v1.0</span>
+              </span>
+            </a>
           </div>
-          <p className="text-sm text-slate-500 pt-2">Supports PDF &amp; Images. Results typically in &lt;1 hour.</p>
+          <h1 className="mt-10 text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
+            Document Translation Made Simple
+          </h1>
+          <p className="mt-6 text-lg leading-8 text-gray-600">
+            Upload your documents and get accurate translations in minutes. Our AI-powered platform supports multiple languages and maintains your document's formatting.
+          </p>
+          <div className="mt-10 flex items-center gap-x-6">
+            <button
+              onClick={handleGetStarted}
+              className="rounded-md bg-indigo-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            >
+              Get started
+            </button>
+            <a href="#features" className="text-sm font-semibold leading-6 text-gray-900">
+              Learn more <span aria-hidden="true">→</span>
+            </a>
+          </div>
         </div>
-        
-        <div className="relative h-[300px] md:h-[500px] w-full max-w-md mx-auto md:max-w-none">
-          <Image 
-            src="/image.png"
-            alt="Illustration of a traveler receiving translated medical documents on their phone"
-            className="rounded-lg shadow-xl object-cover"
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 400px"
-            priority
-          />
+        <div className="mx-auto mt-16 flex max-w-2xl sm:mt-24 lg:ml-10 lg:mr-0 lg:mt-0 lg:max-w-none lg:flex-none xl:ml-32">
+          <div className="max-w-3xl flex-none sm:max-w-5xl lg:max-w-none">
+            <Image
+              src="/imang.png"
+              alt="App screenshot"
+              width={2432}
+              height={1442}
+              className="w-[76rem] rounded-md bg-white/5 shadow-2xl ring-1 ring-white/10"
+            />
+          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 

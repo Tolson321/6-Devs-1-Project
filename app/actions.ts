@@ -1,59 +1,66 @@
 "use server";
 
 import { mistral } from "@ai-sdk/mistral";
-import { put, del, list } from "@vercel/blob";
 import { generateText } from "ai";
 import { nanoid } from "nanoid";
 import { revalidatePath } from "next/cache";
-import type { PutBlobResult } from "@vercel/blob";
-import { sharedDocuments, type SharedDocument } from "@/lib/shared-documents";
+import { supabase } from "@/lib/supabase";
 
-// Custom type definitions for Vercel Blob API
-type BlobMetadata = {
+// Custom type definitions for file metadata
+type FileMetadata = {
   userId?: string;
   originalName?: string;
   uploadedAt?: string;
   expiresAt?: string;
 };
 
-type BlobWithMetadata = {
+type FileWithMetadata = {
   url: string;
   pathname: string;
   size: number;
   contentType?: string;
-  metadata?: BlobMetadata;
+  metadata?: FileMetadata;
 };
 
-// Helper function to schedule blob deletion
-async function scheduleBlobDeletion(blobUrl: string) {
+// Helper function to schedule file deletion
+async function scheduleFileDeletion(filePath: string) {
   // Calculate one week from now in milliseconds
-  const oneWeekFromNow = Date.now() + 7 * 24 * 60 * 60 * 1000;
+  const oneWeekFromNow = new Date();
+  oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);
 
-  // Store the deletion schedule in a database or cache
-  // For now, we'll use a simple setTimeout (Note: this is not persistent across server restarts)
-  setTimeout(async () => {
-    try {
-      await del(blobUrl);
-    } catch (error) {
-      console.error(`Failed to delete blob ${blobUrl}:`, error);
-    }
-  }, oneWeekFromNow - Date.now());
+  // Update the expires_at in the database
+  const { error } = await supabase
+    .from('files')
+    .update({ expires_at: oneWeekFromNow.toISOString() })
+    .eq('file_path', filePath);
+
+  if (error) {
+    console.error(`Failed to schedule file deletion for ${filePath}:`, error);
+  }
 }
 
 // Helper function to store document for sharing
-function storeDocumentForSharing(
-  documentData: Omit<SharedDocument, "createdAt">
-) {
+async function storeDocumentForSharing(documentData: {
+  originalText: string;
+  translatedText: string;
+  sourceLanguage: string;
+  targetLanguage: string;
+  expiresAt: string;
+}) {
   const shareId = nanoid();
-  sharedDocuments.set(shareId, {
-    ...documentData,
-    createdAt: new Date().toISOString(),
-  });
+  
+  const { error } = await supabase
+    .from('shared_documents')
+    .insert({
+      share_id: shareId,
+      original_text: documentData.originalText,
+      translated_text: documentData.translatedText,
+      source_language: documentData.sourceLanguage,
+      target_language: documentData.targetLanguage,
+      expires_at: documentData.expiresAt
+    });
 
-  // Schedule document deletion after 1 week
-  setTimeout(() => {
-    sharedDocuments.delete(shareId);
-  }, 7 * 24 * 60 * 60 * 1000);
+  if (error) throw error;
 
   return shareId;
 }
@@ -62,70 +69,76 @@ export async function getUserUploadsToday(userId: string) {
   if (!userId) return 0;
 
   try {
-    // List all files in the user's folder
-    const prefix = `user-${userId}/`;
-    const { blobs } = await list({ prefix });
-
     const today = new Date();
-    today.setHours(0, 0, 0, 0); // Set to the beginning of today
+    today.setHours(0, 0, 0, 0);
 
-    // Filter blobs uploaded today
-    const uploadsToday = (blobs as unknown as BlobWithMetadata[]).filter(
-      (blob) => {
-        if (!blob.metadata?.uploadedAt) return false;
+    const { data, error } = await supabase
+      .from('files')
+      .select('uploaded_at')
+      .eq('user_id', userId)
+      .gte('uploaded_at', today.toISOString());
 
-        const uploadDate = new Date(blob.metadata.uploadedAt);
-        return uploadDate >= today;
-      }
-    );
+    if (error) throw error;
 
-    return uploadsToday.length;
+    return data.length;
   } catch (error) {
     console.error("Error counting today's uploads:", error);
-    return 0; // Return 0 in case of error
+    return 0;
   }
 }
 
 export async function processDocument(formData: FormData, userId?: string) {
-  let blob: PutBlobResult | null = null;
+  let filePath: string | null = null;
   try {
     // Get the file and target language from the form data
     const file = formData.get("file") as File;
-    const targetLanguage =
-      (formData.get("targetLanguage") as string) || "English";
+    const targetLanguage = (formData.get("targetLanguage") as string) || "English";
 
     if (!file) {
       throw new Error("No file provided");
     }
 
-    // Include user ID in filename if available
-    const prefix = userId ? `user-${userId}/` : "";
-    const filename = `${prefix}${nanoid()}-${file.name}`;
+    // Upload file to Supabase Storage
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${userId ? `user-${userId}/` : ''}${nanoid()}.${fileExt}`;
+    
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('files')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      });
 
-    // Calculate the expiry date (7 days from now)
+    if (uploadError) throw uploadError;
+    filePath = uploadData.path;
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('files')
+      .getPublicUrl(fileName);
+
+    // Calculate expiry date (7 days from now)
     const uploadDate = new Date();
     const expiryDate = new Date(uploadDate);
     expiryDate.setDate(expiryDate.getDate() + 7);
-    const expiresAt = expiryDate.toISOString();
 
-    // Even though TypeScript definitions might not include metadata,
-    // the Vercel Blob API does support it according to the documentation
-    blob = await put(filename, file, {
-      access: "public",
-      cacheControlMaxAge: 60 * 60 * 24 * 7, // 1 week in seconds
-      // @ts-ignore - Vercel Blob TypeScript definitions may be outdated
-      metadata: {
-        userId: userId || "anonymous",
-        originalName: file.name,
-        uploadedAt: uploadDate.toISOString(),
-        expiresAt: expiresAt,
-      },
-    });
+    // Store file metadata in database
+    const { error: dbError } = await supabase
+      .from('files')
+      .insert({
+        user_id: userId || 'anonymous',
+        original_name: file.name,
+        file_path: fileName,
+        content_type: file.type,
+        size: file.size,
+        uploaded_at: uploadDate.toISOString(),
+        expires_at: expiryDate.toISOString()
+      });
 
-    // Schedule the blob for deletion after 1 week
-    if (blob.url) {
-      await scheduleBlobDeletion(blob.url);
-    }
+    if (dbError) throw dbError;
+
+    // Schedule file deletion
+    await scheduleFileDeletion(fileName);
 
     // Determine file type
     const fileType = file.type;
@@ -150,7 +163,7 @@ export async function processDocument(formData: FormData, userId?: string) {
         model: "mistral-ocr-latest",
         document: {
           type: isImage ? "image_url" : "document_url",
-          [isImage ? "image_url" : "document_url"]: blob.url,
+          [isImage ? "image_url" : "document_url"]: publicUrl,
         },
       }),
     });
@@ -208,18 +221,16 @@ export async function processDocument(formData: FormData, userId?: string) {
     });
 
     // Store document for sharing and generate share ID
-    const shareId = storeDocumentForSharing({
+    const shareId = await storeDocumentForSharing({
       originalText: extractedText,
       translatedText: translationResult.text,
       sourceLanguage,
       targetLanguage,
-      expiresAt,
+      expiresAt: expiryDate.toISOString(),
     });
 
     // Generate shareable link
-    const shareableLink = `${
-      process.env.VERCEL_URL || "http://localhost:3000"
-    }/share/${shareId}`;
+    const shareableLink = `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/share/${shareId}`;
 
     // Return the results
     const result = {
@@ -228,15 +239,15 @@ export async function processDocument(formData: FormData, userId?: string) {
       sourceLanguage,
       targetLanguage,
       shareableLink,
-      expiresAt,
+      expiresAt: expiryDate.toISOString(),
     };
 
     revalidatePath("/");
     return result;
   } catch (error) {
     console.error("Error processing document:", error);
-    if (blob) {
-      await del(blob.url);
+    if (filePath) {
+      await supabase.storage.from('files').remove([filePath]);
     }
     throw new Error("Failed to process document");
   }
@@ -248,35 +259,30 @@ export async function getUserFiles(userId: string) {
       throw new Error("User ID is required");
     }
 
-    // List all files in the user's folder
-    const prefix = `user-${userId}/`;
-    const { blobs } = await list({ prefix });
+    const { data, error } = await supabase
+      .from('files')
+      .select('*')
+      .eq('user_id', userId)
+      .order('uploaded_at', { ascending: false });
 
-    // Format the results for display
-    return (blobs as unknown as BlobWithMetadata[]).map((blob) => {
-      const uploadedAt = blob.metadata?.uploadedAt || new Date().toISOString();
+    if (error) throw error;
 
-      // Calculate expiry date (7 days from upload)
-      const uploadDate = new Date(uploadedAt);
-      const expiryDate = new Date(uploadDate);
-      expiryDate.setDate(expiryDate.getDate() + 7);
-
-      // Use stored expiresAt or calculate if not available
-      const expiresAt = blob.metadata?.expiresAt || expiryDate.toISOString();
-
-      return {
-        url: blob.url,
-        pathname: blob.pathname,
-        size: blob.size,
-        uploadedAt,
-        originalName:
-          blob.metadata?.originalName ||
-          blob.pathname.split("/").pop() ||
-          "Unknown",
-        contentType: blob.contentType || "application/octet-stream",
-        expiresAt,
-      };
-    });
+    return data.map((file: {
+      file_path: string;
+      size: number;
+      uploaded_at: string;
+      original_name: string;
+      content_type: string;
+      expires_at: string;
+    }) => ({
+      url: supabase.storage.from('files').getPublicUrl(file.file_path).data.publicUrl,
+      pathname: file.file_path,
+      size: file.size,
+      uploadedAt: file.uploaded_at,
+      originalName: file.original_name,
+      contentType: file.content_type,
+      expiresAt: file.expires_at
+    }));
   } catch (error) {
     console.error("Error fetching user files:", error);
     throw new Error("Failed to fetch user files");
@@ -285,7 +291,21 @@ export async function getUserFiles(userId: string) {
 
 export async function deleteUserFile(pathname: string) {
   try {
-    await del(pathname);
+    // Delete from storage
+    const { error: storageError } = await supabase.storage
+      .from('files')
+      .remove([pathname]);
+
+    if (storageError) throw storageError;
+
+    // Delete from database
+    const { error: dbError } = await supabase
+      .from('files')
+      .delete()
+      .eq('file_path', pathname);
+
+    if (dbError) throw dbError;
+
     revalidatePath("/files");
     return { success: true };
   } catch (error) {
